@@ -1,0 +1,12 @@
+body {
+	background-color: #ddddee;
+}
+
+
+
+.headElement {
+	background-color: #cccccc;
+	border: 1px solid #000000;
+	margin-right: 10px;
+	padding:3px;
+}

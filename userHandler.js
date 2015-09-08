@@ -1,0 +1,154 @@
+var db;
+var status = {
+	userCount:0,
+	state:false
+};
+var users = [];
+
+module.exports = {
+	socketHandler: function(allSockets,dataBase,socket){
+		db = dataBase;
+	    var count = register(socket.id);
+	    // Let all sockets know how many are connected
+	    allSockets.emit('users connected', count);
+	    socket.on('disconnect', function() {
+	        var count = unregister(socket.id);
+	        allSockets.emit('users connected', count);
+	    });
+	    socket.on('login',function(data){
+	        login(socket.id,data.user,data.pass,function(err){
+	            if(err == 0){
+	            	console.log("user logged in")
+	            	var status = loginStatus(socket.id);
+	            	socket.emit('loginStatus',status);
+	            }else{
+	            	console.log(err);
+	            }
+	        });
+	    });
+	    socket.on('logout',function(){
+	        logout(socket.id,function(err){
+	            if(err == 0){
+	            	var status = loginStatus(socket.id);
+	                socket.emit('loginStatus',status);
+	            }
+	        });
+	    });
+	    socket.on('loginStatus',function(){
+	        socket.emit('loginStatus',loginStatus(socket.id));
+	    });
+	},
+	loggedIn: function(userID){
+		var idx = -1;
+		users.forEach(function(data,index,array){
+			if(data.userID == userID){
+				idx = index;
+			}
+		});
+		if(idx < 0){
+			return false;
+		}
+		return users[idx].loggedIn;
+	}
+
+};
+
+var login = function(userID,user,pass,callback){
+	var idx = -1;
+	var error = 0; //errorCodes: 0 all fine; 1 no socker User; 2 no dbEntry; 3 db Error; 4 password invalid
+	users.forEach(function(data,index,array){
+		if(data.userID === userID){
+			idx = index;
+		}
+	});
+	if(idx < 0){
+		error = 1;
+		callback(error);
+		return;
+	}else{
+		var dbData;
+		var dataPresent = false;
+		users[idx].user = user;
+		users[idx].loggedIn = false;
+		db.query('SELECT id,name,password FROM user WHERE name = (?)', user)
+	        .on('result', function(data){
+	            // Push results onto the notes array
+	            dbData = data;
+	            dataPresent = true;
+	        })
+	        .on('end', function(){
+	            // Only emit notes after query has been completed
+	            if(dataPresent === true){
+	                if(dbData.password === pass)
+	                {
+	                	users[idx].loggedIn = true;
+	                	callback(error);
+	                	return;
+	                }else{
+	                	error = 4;
+	                	callback(error);
+	                	return;
+	                }
+	            }else{
+	            	error = 2;
+	            	callback(error);
+	            	return;
+
+	            }
+	        })
+	        .on('error',function(err){
+	        	console.log(err);
+	        	error = 3;
+				callback(error);
+				return;
+			});
+
+	}
+};
+
+var logout = function(userID,callback){
+	var idx = -1;
+	var error = 0; // 1 no valid user
+	users.forEach(function(data,index,array){
+		if(data.userID == userID){
+			idx = index;
+		}
+	});
+	if(idx < 0){
+		error = 1;
+	}else{
+		users[idx].loggedIn = false;
+	}
+	callback(error);
+};
+var loginStatus = function(userID){
+	var idx = -1;
+	users.forEach(function(data,index,array){
+		if(data.userID === userID){
+			idx = index;
+		}
+	});
+	if(idx < 0){
+		return false;
+	}
+	return users[idx];
+};
+var register = function(userID){
+	status.userCount++;
+
+	var user = {userID:userID,user:'',loggedIn:false};
+	users.push(user);
+	return status.userCount;
+};
+var unregister = function(userID){
+	var idx = -1;
+	users.forEach(function(data,index,array){
+		if(data.userID === userID){
+			idx = index;
+		}
+	});
+	users.splice(idx,1);
+	status.userCount--;
+
+	return status.userCount;
+};
