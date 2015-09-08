@@ -48,14 +48,14 @@ db.connect(function(err){
 });
 
 
-var userHandler = require('./userHandler');
+var loginHandler = require('./loginHandler');
 var infoHandler = require('./infoHandler');
 
 
 
 allSockets.on('connection', function (socket) {
-    userHandler.socketHandler(logger,io,db,socket);
-    infoHandler.socketHandler(logger,io,db,socket,userHandler);
+    loginHandler.socketHandler(logger,io,db,socket);
+    infoHandler.socketHandler(logger,io,db,socket,loginHandler);
 });
 
 

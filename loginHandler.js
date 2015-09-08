@@ -4,10 +4,11 @@ var status = {
 	state:false
 };
 var users = [];
-
+var logger;
 module.exports = {
-	socketHandler: function(logger,allSockets,dataBase,socket){
+	socketHandler: function(loggerSystem,allSockets,dataBase,socket){
 		db = dataBase;
+		logger = loggerSystem;
 	    var count = register(socket.id);
 	    // Let all sockets know how many are connected
 	    allSockets.emit('users connected', count);
@@ -51,13 +52,31 @@ module.exports = {
 			return false;
 		}
 		return users[idx].loggedIn;
+	},
+	userLevel: function(userID,level){
+		var idx = -1;
+		users.forEach(function(data,index,array){
+			if(data.userID == userID){
+				idx = index;
+			}
+		});
+		if(idx < 0){
+			return false;
+		}
+		var levels = ['view' , 'edit' , 'add' , 'master' , 'admin' , 'root'];
+		logger.log('info', 'userLevel: ' + users[idx].level + ' requiered level: ' + levels.indexOf(level));
+		if(users[idx].level >= levels.indexOf(level)){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 };
 
 var login = function(userID,user,pass,callback){
 	var idx = -1;
-	var error = 0; //errorCodes: 0 all fine; 1 no socker User; 2 no dbEntry; 3 db Error; 4 password invalid
+	var error = 0; //errorCodes: 0 all fine; 1 no socket User; 2 no dbEntry; 3 db Error; 4 password invalid
 	users.forEach(function(data,index,array){
 		if(data.userID === userID){
 			idx = index;
@@ -72,7 +91,8 @@ var login = function(userID,user,pass,callback){
 		var dataPresent = false;
 		users[idx].user = user;
 		users[idx].loggedIn = false;
-		db.query('SELECT id,name,password FROM user WHERE name = (?)', user)
+		users[idx].level = 0;
+		db.query('SELECT id,name,password,level FROM user WHERE name = (?)', user)
 	        .on('result', function(data){
 	            // Push results onto the notes array
 	            dbData = data;
@@ -84,6 +104,7 @@ var login = function(userID,user,pass,callback){
 	                if(dbData.password === pass)
 	                {
 	                	users[idx].loggedIn = true;
+	                	users[idx].level = dbData.level;
 	                	callback(error);
 	                	return;
 	                }else{

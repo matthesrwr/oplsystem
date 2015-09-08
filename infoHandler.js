@@ -3,10 +3,10 @@ var db;
 
 
 module.exports = {
-	socketHandler:function(logger,allSockets,dataBase,socket,userHandler){
+	socketHandler:function(logger,allSockets,dataBase,socket,loginHandler){
 		db = dataBase;
 	    socket.on('get infos',function(data){
-	        if(userHandler.loggedIn(socket.id) == false)
+	        if(loginHandler.loggedIn(socket.id) == false)
 	        {
 	            return;
 	        }
@@ -19,7 +19,7 @@ module.exports = {
 
 	    socket.on('new info', function(data){
 	        // New note added, push to all sockets and insert into db
-	        if(userHandler.loggedIn(socket.id) == false)
+	        if(loginHandler.userLevel(socket.id,'admin') == false)
 	        {
 	            return;
 	        }
@@ -30,7 +30,7 @@ module.exports = {
 	    });
 	    socket.on('del info', function(data){
 	        // New note added, push to all sockets and insert into db
-	        if(userHandler.loggedIn(socket.id) == false)
+	        if(loginHandler.loggedIn(socket.id) == false)
 	        {
 	            return;
 	        }
