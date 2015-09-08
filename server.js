@@ -2,24 +2,39 @@ var appHandler = require('./apphandler')
 var https = require('https');
 var fs = require('fs');
 
+var data = fs.readFileSync('./config/config.json'),configuration;
+
+
+try {
+    configuration = JSON.parse(data);
+}
+    catch (err) {
+    console.log('There has been an error parsing your JSON.')
+    console.log(err);
+}
+
 var options = {
-    key:    fs.readFileSync('./certs/server.key'),
-    cert:   fs.readFileSync('./certs/server.crt'),
+    key:    fs.readFileSync(configuration.sslkey),
+    cert:   fs.readFileSync(configuration.sslcrt),
 };
+
+
+
+
 
 
 var app = https.createServer(options,appHandler);
 var io = require('socket.io').listen(app);
-app.listen(3000, "0.0.0.0");
+app.listen(configuration.server.port, configuration.server.hostname);
 var allSockets = io.sockets;
 
 
 var mysql = require('mysql');
 var db = mysql.createConnection({
-    host: 'localhost',
-    user: 'opl',
-    password: 'oplpass',
-    database: 'opl'
+    host: configuration.mysql.server,
+    user: configuration.mysql.user,
+    password: configuration.mysql.pass,
+    database: configuration.mysql.dbname
 });
 db.connect(function(err){
     if (err) console.log(err);

@@ -11,7 +11,6 @@ module.exports = function (request, response) {
 	switch(request.method){
 		case "GET" :
 			var fileName = urlHandler.parse(request.url).pathname;
-			console.log(request.url);
 			fileName = fileName.replace("../","");
 			if(fileName == "/"){
 				fileName = '/index.html';
