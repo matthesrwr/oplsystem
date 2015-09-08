@@ -1,3 +1,4 @@
 certs/server.crt
 certs/server.key
+node_modules
 
