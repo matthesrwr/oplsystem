@@ -6,7 +6,7 @@ var status = {
 var users = [];
 
 module.exports = {
-	socketHandler: function(allSockets,dataBase,socket){
+	socketHandler: function(logger,allSockets,dataBase,socket){
 		db = dataBase;
 	    var count = register(socket.id);
 	    // Let all sockets know how many are connected
@@ -18,11 +18,11 @@ module.exports = {
 	    socket.on('login',function(data){
 	        login(socket.id,data.user,data.pass,function(err){
 	            if(err == 0){
-	            	console.log("user logged in")
+	            	logger.log('info','user ' + data.user + ' logged in');
 	            	var status = loginStatus(socket.id);
 	            	socket.emit('loginStatus',status);
 	            }else{
-	            	console.log(err);
+	            	logger.log('warn','login failed, reason: ' + err);
 	            }
 	        });
 	    });
@@ -31,6 +31,8 @@ module.exports = {
 	            if(err == 0){
 	            	var status = loginStatus(socket.id);
 	                socket.emit('loginStatus',status);
+	            }else{
+	            	logger.log('warn','logout failed, reason: ' + err);
 	            }
 	        });
 	    });
@@ -97,7 +99,7 @@ var login = function(userID,user,pass,callback){
 	            }
 	        })
 	        .on('error',function(err){
-	        	console.log(err);
+	        	logger.log('error',err);
 	        	error = 3;
 				callback(error);
 				return;

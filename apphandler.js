@@ -7,7 +7,7 @@ var filePath = __dirname + '/page';
 
 
 
-module.exports = function (request, response) {
+module.exports = function (logger,request, response) {
 	switch(request.method){
 		case "GET" :
 			var fileName = urlHandler.parse(request.url).pathname;
@@ -18,7 +18,7 @@ module.exports = function (request, response) {
 
 			//var extName = pathHandler.extname(fileName);
 			var contentMime = mimeHandler.lookup(filePath + fileName);
-			console.log('request for: ' + request.url);
+			logger.log('info' , 'request for: ' + request.url);
 
 
 
@@ -31,7 +31,7 @@ module.exports = function (request, response) {
 					response.writeHead(200, {'Content-Type': contentMime});
 				    response.write(data);
 					response.end();
-					console.log('send ' + filePath + fileName + " with mime " + contentMime);
+					logger.log('info' , 'send ' + filePath + fileName + " with mime " + contentMime);
 				}
 			});
 		break;

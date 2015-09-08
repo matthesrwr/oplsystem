@@ -1,7 +1,11 @@
-var appHandler = require('./apphandler')
+var appHandler = require('./apphandler');
+var logger = require('./logHandler');
 var https = require('https');
 var fs = require('fs');
 
+logger.setLevel('info');
+
+logger.log('info',"read config file");
 var data = fs.readFileSync('./config/config.json'),configuration;
 
 
@@ -13,6 +17,7 @@ try {
     console.log(err);
 }
 
+
 var options = {
     key:    fs.readFileSync(configuration.sslkey),
     cert:   fs.readFileSync(configuration.sslcrt),
@@ -23,7 +28,9 @@ var options = {
 
 
 
-var app = https.createServer(options,appHandler);
+var app = https.createServer(options,function(request,response){
+    appHandler(logger,request,response);
+});
 var io = require('socket.io').listen(app);
 app.listen(configuration.server.port, configuration.server.hostname);
 var allSockets = io.sockets;
@@ -37,7 +44,7 @@ var db = mysql.createConnection({
     database: configuration.mysql.dbname
 });
 db.connect(function(err){
-    if (err) console.log(err);
+    if (err) logger.log('error',err);
 });
 
 
@@ -47,14 +54,8 @@ var infoHandler = require('./infoHandler');
 
 
 allSockets.on('connection', function (socket) {
-    userHandler.socketHandler(io,db,socket);
-    infoHandler.socketHandler(io,db,socket,userHandler);
-
-
-
-
-
-
+    userHandler.socketHandler(logger,io,db,socket);
+    infoHandler.socketHandler(logger,io,db,socket,userHandler);
 });
 
 

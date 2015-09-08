@@ -3,7 +3,7 @@ var db;
 
 
 module.exports = {
-	socketHandler:function(allSockets,dataBase,socket,userHandler){
+	socketHandler:function(logger,allSockets,dataBase,socket,userHandler){
 		db = dataBase;
 	    socket.on('get infos',function(data){
 	        if(userHandler.loggedIn(socket.id) == false)
@@ -12,6 +12,7 @@ module.exports = {
 	        }
 	        readInfos(function(data){
 	            var infos = data;
+	            logger.log('info','infos send');
 	            socket.emit('infos',infos);
 	        });
 	    });
@@ -23,6 +24,7 @@ module.exports = {
 	            return;
 	        }
 	        writeInfo(data.info, function(){
+	        	logger.log('info', 'info created')
 	        	allSockets.emit('infoWriten');
 	        });
 	    });
@@ -33,6 +35,7 @@ module.exports = {
 	            return;
 	        }
 	        delInfo(data.id, function(){
+	        	logger.log('info', 'info deleted')
 	        	allSockets.emit('infoDeleted');
 	        });
 	    });
@@ -45,7 +48,7 @@ db.query('INSERT INTO infos (text) VALUES (?)', data)
 		callback();
 	})
 	.on('error',function(err){
-		console.log(err);
+		logger.log('error',err);
 	});
 };
 var readInfos = function(callback){
@@ -60,8 +63,7 @@ var readInfos = function(callback){
             callback(infos);
         })
         .on('error',function(err){
-			console.log(err);
-		});
+		logger.log('error',err);		});
 };
 var delInfo = function(data,callback){
 db.query('DELETE FROM infos WHERE id=(?)', data)
@@ -69,6 +71,6 @@ db.query('DELETE FROM infos WHERE id=(?)', data)
 		callback();
 	})
 	.on('error',function(err){
-		console.log(err);
+		logger.log('error',err);
 	});
 };
