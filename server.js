@@ -13,8 +13,8 @@ try {
     configuration = JSON.parse(data);
 }
     catch (err) {
-    console.log('There has been an error parsing your JSON.')
-    console.log(err);
+    logger.log('error','There has been an error parsing your JSON.')
+    console.log('error',err);
 }
 
 

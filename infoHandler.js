@@ -1,9 +1,10 @@
 
 var db;
-
+var logger
 
 module.exports = {
-	socketHandler:function(logger,allSockets,dataBase,socket,loginHandler){
+	socketHandler:function(loggerSystem,allSockets,dataBase,socket,loginHandler){
+		logger = loggerSystem;
 		db = dataBase;
 	    socket.on('get infos',function(data){
 	        if(loginHandler.userLevel(socket.id,'view') == false)
