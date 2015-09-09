@@ -14,7 +14,7 @@ try {
 }
     catch (err) {
     logger.log('error','There has been an error parsing your JSON.')
-    console.log('error',err);
+    logger.log('error',err);
 }
 
 
