@@ -5,9 +5,15 @@ $(document).ready(function(){
 
     loginFunction(socket);
 
-    $(window).on('loginState', function (e) {
-        if(e.state ==true){
-            infoFunction(socket);
+    $(window).on('loginState', function (e,data) {
+        if(e.state === true){
+            console.log('logged in');
+            if(data.level >= 0){
+                infoFunction(socket);
+            }
+            if(data.level >= 4){
+                userFunction(socket);
+            }
 
         }else{
             $('#bodyDiv').html('');

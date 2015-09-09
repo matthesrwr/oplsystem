@@ -50,12 +50,14 @@ db.connect(function(err){
 
 var loginHandler = require('./loginHandler');
 var infoHandler = require('./infoHandler');
+var userHandler = require('./userHandler');
 
 
 
 allSockets.on('connection', function (socket) {
     loginHandler.socketHandler(logger,io,db,socket);
     infoHandler.socketHandler(logger,io,db,socket,loginHandler);
+    userHandler.socketHandler(logger,io,db,socket,loginHandler);
 });
 
 

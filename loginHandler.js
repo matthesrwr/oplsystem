@@ -63,7 +63,7 @@ module.exports = {
 		if(idx < 0){
 			return false;
 		}
-		var levels = ['view' , 'edit' , 'add' , 'master' , 'admin' , 'root'];
+		var levels = ['noright' , 'view' , 'edit' , 'add' , 'master' , 'admin' , 'root'];
 		logger.log('info', 'userLevel: ' + users[idx].level + ' requiered level: ' + levels.indexOf(level));
 		if(users[idx].level >= levels.indexOf(level)){
 			return true;
