@@ -1,6 +1,6 @@
 $(document).ready(function(){
     // Connect to our node/websockets server
-    var socket = io.connect('https://localhost:3000');
+    var socket = io.connect('https://matthesmac:3000');
 
 
     loginFunction(socket);
