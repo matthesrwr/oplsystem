@@ -1,6 +1,4 @@
 var fsHandler = require('fs');
-var pathHandler = require('path');
-var utilHandler = require('util');
 var mimeHandler = require('mime');
 var urlHandler = require('url')
 var filePath = __dirname + '/page';

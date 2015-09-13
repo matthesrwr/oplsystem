@@ -1,7 +1,7 @@
 var loginFunction = function(socket){
 
         // New socket connected, display new count on page
-    socket.on('users connected', function(data){
+    socket.on('login.userCount', function(data){
         $('#usersConnected').html('<p>Users connected: ' + data + '</p>');
     });
     var evt = jQuery.Event('loginState');
@@ -9,14 +9,14 @@ var loginFunction = function(socket){
     $(window).trigger(evt);
 
 
-    socket.on('loginStatus',function(data){
+    socket.on('login.serverStatus',function(data){
         if (data.loggedIn == true){
             evt.state = true;
             $(window).trigger(evt,data);
             var html = '<p id=logout><a>logout</a></p>';
             $('#loginDiv').html(html);
             $('#logout').click(function(){
-                socket.emit('logout');
+                socket.emit('login.logout');
             });
         }else{
             evt.state = false;
@@ -29,29 +29,29 @@ var loginFunction = function(socket){
         }
     });
 
-    socket.emit('loginStatus');
+    socket.emit('login.clientStatus');
 };
 var loginFormFunctions = function(socket){
     $('#user').keypress(function(e){
         if(e.which == 13){
-            var iUser = $('#user').val();
-            var iPass = $('#pass').val();
-            socket.emit('login',{user:iUser,pass:iPass});
+            loginSendFunction(socket);
             return false;
         }
     });
     $('#pass').keypress(function(e){
         if(e.which == 13){
-            var iUser = $('#user').val();
-            var iPass = $('#pass').val();
-            socket.emit('login',{user:iUser,pass:iPass});
+            loginSendFunction(socket);
             return false;
         }
     });
     $('#submit').click(function(){
-        var iUser = $('#user').val();
-        var iPass = $('#pass').val();
-        socket.emit('login',{user:iUser,pass:iPass});
+        loginSendFunction(socket);
         return false;
     });
 };
+
+var loginSendFunction = function(socket){
+    var iUser = $('#user').val();
+    var iPass = $('#pass').val();
+    socket.emit('login.login',{user:iUser,pass:iPass});
+}

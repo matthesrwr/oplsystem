@@ -4,7 +4,7 @@ var userData;
 var userFunction = function(socket){
 
     // Initial set of notes, loop through and add to list
-    socket.on('users', function(data){
+    socket.on('users.send', function(data){
         userData = data;
         var html = '<br><table>';
         html += '<tr><td>Name</td><td>Level</td><td></td></tr>';
@@ -21,19 +21,19 @@ var userFunction = function(socket){
         $('#user').focus();
         // Add a new (random) note, emit to server to let others know
     });
-    socket.on('userAdded',function(){
-        socket.emit('get users',{type:'onWrite'});
+    socket.on('users.added',function(){
+        socket.emit('users.get');
     });
-    socket.on('userModified',function(){
-        socket.emit('get users',{type:'onModify'});
+    socket.on('users.modified',function(){
+        socket.emit('users.get');
     });
-    socket.on('userDeleted',function(){
-        socket.emit('get users',{type:'onDel'});
+    socket.on('users.deleted',function(){
+        socket.emit('users.get');
     });
 
     $('#headDiv').append('<span id=headUser class="headElement">Users</span>');
     $('#headUser').click(function(){
-        socket.emit('get users',{type:'onLoad'});
+        socket.emit('users.get');
     });
 };
 
@@ -65,14 +65,14 @@ var userFormFunctions = function(socket){
         $('.entry').unbind();
         $('#delete').click(function(){
             var id=$('#delete').attr('class');
-            socket.emit('del user',{id:userData[id].id});
+            socket.emit('users.delete',{id:userData[id].id});
         });
         $('#change').click(function(){
             var modUser = {};
             modUser.id=userData[$('#change').attr('class')].id;
             modUser.name = $('#changeUser').val();
             modUser.level = $('#changeLevel').val();
-            socket.emit('change user',{id:modUser.id,name:modUser.name,level:modUser.level});
+            socket.emit('users.modify',{id:modUser.id,name:modUser.name,level:modUser.level});
         });
     });
 
@@ -84,7 +84,7 @@ var userAddFunction = function(socket){
     iUser.name = $('#username').val();
     iUser.password = $('#password').val();
     iUser.level = $('#level').val();
-    socket.emit('new user',{user:iUser});
+    socket.emit('users.new',{user:iUser});
     $('#user').focus();
     return false;
 }

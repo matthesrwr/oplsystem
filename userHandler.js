@@ -6,7 +6,7 @@ module.exports = {
 	socketHandler:function(loggerSystem,allSockets,dataBase,socket,loginHandler){
 		db = dataBase;
 		logger = loggerSystem;
-	    socket.on('get users',function(data){
+	    socket.on('users.get',function(data){
 	        if(loginHandler.userLevel(socket.id,'master') == false)
 	        {
 	            return;
@@ -14,11 +14,11 @@ module.exports = {
 	        readUsers(function(data){
 	            var users = data;
 	            logger.log('info','users send');
-	            socket.emit('users',users);
+	            socket.emit('users.send',users);
 	        });
 	    });
 
-	    socket.on('new user', function(data){
+	    socket.on('users.new', function(data){
 			logger.log('info',data)
 	        // New note added, push to all sockets and insert into db
 	        if(loginHandler.userLevel(socket.id,'master') == false)
@@ -27,10 +27,10 @@ module.exports = {
 	        }
 	        writeUser(data.user, function(){
 	        	logger.log('info', 'user created')
-	        	allSockets.emit('userAdded');
+	        	allSockets.emit('users.added');
 	        });
 	    });
-	    socket.on('del user', function(data){
+	    socket.on('users.delete', function(data){
 	        // New note added, push to all sockets and insert into db
 	        if(loginHandler.userLevel(socket.id,'admin') == false)
 	        {
@@ -38,10 +38,10 @@ module.exports = {
 	        }
 	        delUser(data.id, function(){
 	        	logger.log('info', 'user deleted')
-	        	allSockets.emit('userDeleted');
+	        	allSockets.emit('users.deleted');
 	        });
 	    });
-	    socket.on('change user', function(data){
+	    socket.on('users.modify', function(data){
 	        // New note added, push to all sockets and insert into db
 	        if(loginHandler.userLevel(socket.id,'admin') == false)
 	        {
@@ -49,7 +49,7 @@ module.exports = {
 	        }
 	        changeUser(data, function(){
 	        	logger.log('info', 'user modified')
-	        	allSockets.emit('userModified');
+	        	allSockets.emit('users.modified');
 	        });
 	    });
 	}

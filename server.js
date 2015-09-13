@@ -6,19 +6,12 @@ var fs = require('fs');
 logger.setLevel('info');
 
 logger.log('info',"read config file");
-var data = fs.readFileSync('./config/config.json'),configuration;
+var configurationFile = fs.readFileSync('./config/config.json');
+var configuration = JSON.parse(configurationFile);
 
 
-try {
-    configuration = JSON.parse(data);
-}
-    catch (err) {
-    logger.log('error','There has been an error parsing your JSON.')
-    logger.log('error',err);
-}
 
-
-var options = {
+var httpOptions = {
     key:    fs.readFileSync(configuration.sslkey),
     cert:   fs.readFileSync(configuration.sslcrt),
 };
@@ -28,7 +21,7 @@ var options = {
 
 
 
-var app = https.createServer(options,function(request,response){
+var app = https.createServer(httpOptions,function(request,response){
     appHandler(logger,request,response);
 });
 var io = require('socket.io').listen(app);
@@ -49,15 +42,17 @@ db.connect(function(err){
 
 
 var loginHandler = require('./loginHandler');
-var infoHandler = require('./infoHandler');
 var userHandler = require('./userHandler');
+
+var infoHandler = require('./infoHandler');
 
 
 
 allSockets.on('connection', function (socket) {
     loginHandler.socketHandler(logger,io,db,socket);
-    infoHandler.socketHandler(logger,io,db,socket,loginHandler);
     userHandler.socketHandler(logger,io,db,socket,loginHandler);
+
+    infoHandler.socketHandler(logger,io,db,socket,loginHandler);
 });
 
 

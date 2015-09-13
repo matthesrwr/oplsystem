@@ -1,59 +1,45 @@
 var db;
 var status = {
-	userCount:0,
-	state:false
+	userCount:0
 };
 var users = [];
 var logger;
 var bcrypt = require('bcrypt');
+
+
 module.exports = {
 	socketHandler: function(loggerSystem,allSockets,dataBase,socket){
 		db = dataBase;
 		logger = loggerSystem;
-	    var count = register(socket.id);
 	    // Let all sockets know how many are connected
-	    allSockets.emit('users connected', count);
+	    allSockets.emit('login.userCount', register(socket.id));
 	    socket.on('disconnect', function() {
-	        var count = unregister(socket.id);
-	        allSockets.emit('users connected', count);
+	        allSockets.emit('login.userCount', unregister(socket.id));
 	    });
-	    socket.on('login',function(data){
+	    socket.on('login.login',function(data){
+	    	logger.log('info','request for login');
 	        login(socket.id,data.user,data.pass,function(err){
 	            if(err == 0){
-	            	logger.log('info','user ' + data.user + ' logged in');
-	            	var status = loginStatus(socket.id);
-	            	socket.emit('loginStatus',status);
+	            	socket.emit('login.serverStatus',loginStatus(socket.id));
 	            }else{
 	            	logger.log('warn','login failed, reason: ' + err);
 	            }
 	        });
 	    });
-	    socket.on('logout',function(){
+	    socket.on('login.logout',function(){
 	        logout(socket.id,function(err){
 	            if(err == 0){
-	            	var status = loginStatus(socket.id);
-	                socket.emit('loginStatus',status);
+	                socket.emit('login.serverStatus',loginStatus(socket.id));
 	            }else{
 	            	logger.log('warn','logout failed, reason: ' + err);
 	            }
 	        });
 	    });
-	    socket.on('loginStatus',function(){
-	        socket.emit('loginStatus',loginStatus(socket.id));
+	    socket.on('login.clientStatus',function(){
+	        socket.emit('login.serverStatus',loginStatus(socket.id));
 	    });
-	},
-	loggedIn: function(userID){
-		var idx = -1;
-		users.forEach(function(data,index,array){
-			if(data.userID == userID){
-				idx = index;
-			}
-		});
-		if(idx < 0){
-			return false;
-		}
-		return users[idx].loggedIn;
-	},
+	}
+	,
 	userLevel: function(userID,level){
 		var idx = -1;
 		users.forEach(function(data,index,array){
