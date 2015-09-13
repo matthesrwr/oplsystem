@@ -1,7 +1,7 @@
 
 var db;
 var logger;
-
+var bcrypt = require('bcrypt');
 module.exports = {
 	socketHandler:function(loggerSystem,allSockets,dataBase,socket,loginHandler){
 		db = dataBase;
@@ -56,12 +56,20 @@ module.exports = {
 };
 
 var writeUser = function(data,callback){
-db.query('INSERT INTO user SET ?', {name : data.name,password : data.password,level : data.level})
-	.on('end',function(){
-		callback();
-	})
-	.on('error',function(err){
-		logger.log('error',err);
+	bcrypt.hash(data.password, 10, function(err, hash) {
+	    if (!err) {
+	    	logger.log('info', 'new hash: ' + hash);
+			db.query('INSERT INTO user SET ?', {name : data.name,password : hash,level : data.level})
+				.on('end',function(){
+					callback();
+				})
+				.on('error',function(err){
+					logger.log('error',err);
+				});
+
+	    } else {
+			logger.log('error',err);
+	    }
 	});
 };
 var readUsers = function(callback){

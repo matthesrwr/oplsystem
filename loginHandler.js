@@ -5,6 +5,7 @@ var status = {
 };
 var users = [];
 var logger;
+var bcrypt = require('bcrypt');
 module.exports = {
 	socketHandler: function(loggerSystem,allSockets,dataBase,socket){
 		db = dataBase;
@@ -76,7 +77,7 @@ module.exports = {
 
 var login = function(userID,user,pass,callback){
 	var idx = -1;
-	var error = 0; //errorCodes: 0 all fine; 1 no socket User; 2 no dbEntry; 3 db Error; 4 password invalid
+	var error = 0; //errorCodes: 0 all fine; 1 no socket User; 2 no dbEntry; 3 db Error; 4 password invalid; 5 hashError
 	users.forEach(function(data,index,array){
 		if(data.userID === userID){
 			idx = index;
@@ -94,25 +95,33 @@ var login = function(userID,user,pass,callback){
 		users[idx].level = 0;
 		db.query('SELECT id,name,password,level FROM user WHERE name = (?)', user)
 	        .on('result', function(data){
-	            // Push results onto the notes array
 	            dbData = data;
 	            dataPresent = true;
 	        })
 	        .on('end', function(){
-	            // Only emit notes after query has been completed
 	            if(dataPresent === true){
-	                if(dbData.password === pass)
-	                {
-	                	users[idx].loggedIn = true;
-	                	users[idx].level = dbData.level;
-	                	callback(error);
-	                	return;
-	                }else{
-	                	error = 4;
-	                	callback(error);
-	                	return;
-	                }
-	            }else{
+	            	bcrypt.compare(pass, dbData.password, function(err, res) {
+					    if (!err) {
+					        // wenn kein Fehler aufgetreten ist
+					        if (res === true) {
+			                	users[idx].loggedIn = true;
+			                	users[idx].level = dbData.level;
+			                	callback(error);
+			                	return;
+					        } else {
+					        	error = 4;
+	        					logger.log('error',res);
+	        					callback(error);
+	        					return;
+					        }
+					    } else {
+	        				logger.log('error',err);
+	        				error = 5;
+	        				callback(error);
+	        				return;
+					    }
+					});
+	            } else {
 	            	error = 2;
 	            	callback(error);
 	            	return;
