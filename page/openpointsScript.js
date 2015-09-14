@@ -1,5 +1,5 @@
 var openpointsData;
-var grounpData;
+var groupData;
 var userData;
 var projectData;
 
@@ -7,10 +7,10 @@ var openpointsFunction = function(socket){
 
     // Initial set of notes, loop through and add to list
     socket.on('openpoints.send', function(data){
-        groupData = data.groups;
+        openpointsData = data.openpoints;
         userData = data.user;
         projectData = data.projectData;
-        openpointsData = data.openpoints;
+        groupData = data.groups;
 
         var html = '<br><table>';
         html += '<tr><td>project</td><td>point</td><td>explanation</td><td>creation date</td><td>due date</td><td>creator</td><td>responsible</td><td>group</td><td></td></tr>';
@@ -57,32 +57,40 @@ var openpointsFunction = function(socket){
             html += '<td>' + groupName + '</td>';
             html += '<td></td></tr>';
         }
-        html += '</table><br>';
+
+        html += '<tr><td><select id=openpoints.newProject>';
+        projectData.forEach(function(data,index,array){
+            html += '<option value=' + data.id + '>' + data.name + '</input>';
+        });
+        html += '</select></td>';
+        html += '<td><input id=openpoints.newPoint></input></td>';
+        html += '<td><input id=openpoints.newExplanation></input></td>';
+        html += '<td></td>';
+        html += '<td><input id=openpoints.newDueDate></input></td>';
+        html += '<td></td>';
 
 
-        html += '<input id=groups.newName></input>';
-
-
-        html += '<select id=groups.newHead>';
+        html += '<td><select id=openpoints.newResponsible>';
         userData.forEach(function(data,index,array){
             html += '<option value=' + data.id + '>' + data.name + '</input>';
         });
-
-        html += '</select>';
-        html += '<input id=groups.newSubmit type=submit></input>';
+        html += '</select></td>';
+        html += '<td></td>';
+        html += '<td><input id=openpoints.newSubmit type=submit></input></td>';
+        html += '</tr></table><br>';
         $('#bodyDiv').html(html);
-        groupFormFunctions(socket);
+        openpointsFormFunctions(socket);
         $('#user').focus();
         // Add a new (random) note, emit to server to let others know
     });
-    socket.on('groups.added',function(){
-        socket.emit('groups.get');
+    socket.on('openpoints.added',function(){
+        socket.emit('openpoints.get');
     });
-    socket.on('groups.modified',function(){
-        socket.emit('groups.get');
+    socket.on('openpoints.modified',function(){
+        socket.emit('openpoints.get');
     });
-    socket.on('groups.deleted',function(){
-        socket.emit('groups.get');
+    socket.on('openpoints.deleted',function(){
+        socket.emit('openpoints.get');
     });
 
     $('#headDiv').append('<span id=points.head class="headElement">points</span>');
@@ -91,26 +99,26 @@ var openpointsFunction = function(socket){
     });
 };
 
-var groupFormFunctions = function(socket){
-    $('#groups\\.newName').keypress(function(e){
+var openpointsFormFunctions = function(socket){
+    $('#openpoints\\.newName').keypress(function(e){
         if(e.which == 13){
-            groupAddFunction(socket);
+            openpointsAddFunction(socket);
         }
     });
-    $('#groups\\.newHead').keypress(function(e){
+    $('#openpoints\\.newHead').keypress(function(e){
         if(e.which == 13){
-            groupAddFunction(socket);
+            openpointsAddFunction(socket);
         }
     });
-    $('#groups\\.newSubmit').click(function(){
-            groupAddFunction(socket);
+    $('#openpoints\\.newSubmit').click(function(){
+            openpointsAddFunction(socket);
     });
-    $('.groups\\.entry').click(function(){
-        var html = '<td><input id=groups.changeUser value=' + groupData[this.id].name + '></input></td>';
+    $('.openpoints\\.entry').click(function(){
+        var html = '<td><input id=openpoints.changeUser value=' + openpointsData[this.id].name + '></input></td>';
         var actID = this.id;
-        html += '<td><select id=groups.changeHead>';
+        html += '<td><select id=openpoints.changeHead>';
         userData.forEach(function(data,index,array){
-            if(groupData[actID].head === data.id){
+            if(openpointsData[actID].head === data.id){
                 html += '<option selected value=' + data.id + '>' + data.name + '</input>';
             }else{
                 html += '<option value=' + data.id + '>' + data.name + '</input>';
@@ -121,31 +129,31 @@ var groupFormFunctions = function(socket){
 
 
 
-        html += '<td><input id=groups.changeSubmit type=submit value=change class=' + this.id + '></input>';
-        html += '<input id=groups.deleteSubmit type=submit value=delete class=' + this.id + '></input></td>'
+        html += '<td><input id=openpoints.changeSubmit type=submit value=change class=' + this.id + '></input>';
+        html += '<input id=openpoints.deleteSubmit type=submit value=delete class=' + this.id + '></input></td>'
         $('#' + this.id).html(html);
-        $('.groups\\.entry').unbind();
-        $('#groups\\.deleteSubmit').click(function(){
-            var id=$('#groups\\.deleteSubmit').attr('class');
-            socket.emit('groups.delete',{id:groupData[id].id});
+        $('.openpoints\\.entry').unbind();
+        $('#openpoints\\.deleteSubmit').click(function(){
+            var id=$('#openpoints\\.deleteSubmit').attr('class');
+            socket.emit('openpoints.delete',{id:openpointsData[id].id});
         });
-        $('#groups\\.changeSubmit').click(function(){
+        $('#openpoints\\.changeSubmit').click(function(){
             var modGroup = {};
-            modGroup.id=groupData[$('#groups\\.changeSubmit').attr('class')].id;
-            modGroup.name = $('#groups\\.changeUser').val();
-            modGroup.head = $('#groups\\.changeHead').val();
-            socket.emit('groups.modify',{id:modGroup.id,name:modGroup.name,head:modGroup.head});
+            modGroup.id=openpointsData[$('#openpoints\\.changeSubmit').attr('class')].id;
+            modGroup.name = $('#openpoints\\.changeUser').val();
+            modGroup.head = $('#openpoints\\.changeHead').val();
+            socket.emit('openpoints.modify',{id:modGroup.id,name:modGroup.name,head:modGroup.head});
         });
     });
 
 };
 
 
-var groupAddFunction = function(socket){
+var openpointsAddFunction = function(socket){
     var newGroup = {};
-    newGroup.name = $('#groups\\.newName').val();
-    newGroup.head = $('#groups\\.newHead').val();
-    socket.emit('groups.new',{name:newGroup.name,head:newGroup.head});
-    $('#groups\\.newName').focus();
+    newGroup.name = $('#openpoints\\.newName').val();
+    newGroup.head = $('#openpoints\\.newHead').val();
+    socket.emit('openpoints.new',{name:newGroup.name,head:newGroup.head});
+    $('#openpoints\\.newName').focus();
     return false;
 }

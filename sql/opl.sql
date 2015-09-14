@@ -7,7 +7,7 @@
 #
 # Host: 127.0.0.1 (MySQL 10.0.21-MariaDB)
 # Database: opl
-# Generation Time: 2015-09-14 09:25:27 +0000
+# Generation Time: 2015-09-14 17:14:38 +0000
 # ************************************************************
 
 
@@ -42,6 +42,40 @@ DROP TABLE IF EXISTS `infos`;
 CREATE TABLE `infos` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `text` longtext NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table openpoints
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `openpoints`;
+
+CREATE TABLE `openpoints` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `point` longtext,
+  `explanation` longtext,
+  `creationDate` bigint(11) DEFAULT NULL,
+  `dueDate` bigint(20) DEFAULT NULL,
+  `responsiblePerson` int(11) DEFAULT NULL,
+  `creator` int(11) DEFAULT NULL,
+  `project` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+# Dump of table project
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `project`;
+
+CREATE TABLE `project` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` longtext,
+  `customer` longtext,
+  `type` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
