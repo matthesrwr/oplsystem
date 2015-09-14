@@ -21,16 +21,16 @@ var groupFunction = function(socket){
             html += '<td>' + headName + '</td>';
             html += '<td></td></tr>';
         }
-        html += '</table><br>';
-        html += '<input id=groups.newName></input>';
+        html += '</tr><td><input id=groups.newName></input></td>';
 
-        html += '<select id=groups.newHead>';
+        html += '<td><select id=groups.newHead>';
         userData.forEach(function(data,index,array){
             html += '<option value=' + data.id + '>' + data.name + '</input>';
         });
 
-        html += '</select>';
-        html += '<input id=groups.newSubmit type=submit></input>';
+        html += '</select></td>';
+        html += '<td><input id=groups.newSubmit type=submit></input></td>';
+        html += '</table><br>';
         $('#bodyDiv').html(html);
         groupFormFunctions(socket);
         $('#user').focus();
@@ -67,7 +67,7 @@ var groupFormFunctions = function(socket){
             groupAddFunction(socket);
     });
     $('.groups\\.entry').click(function(){
-        var html = '<td><input id=groups.changeUser value=' + groupData[this.id].name + '></input></td>';
+        var html = '<td><input id=groups.changeName value=' + groupData[this.id].name + '></input></td>';
         var actID = this.id;
         html += '<td><select id=groups.changeHead>';
         userData.forEach(function(data,index,array){
@@ -93,7 +93,7 @@ var groupFormFunctions = function(socket){
         $('#groups\\.changeSubmit').click(function(){
             var modGroup = {};
             modGroup.id=groupData[$('#groups\\.changeSubmit').attr('class')].id;
-            modGroup.name = $('#groups\\.changeUser').val();
+            modGroup.name = $('#groups\\.changeName').val();
             modGroup.head = $('#groups\\.changeHead').val();
             socket.emit('groups.modify',{id:modGroup.id,name:modGroup.name,head:modGroup.head});
         });

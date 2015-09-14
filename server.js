@@ -46,6 +46,10 @@ db.connect(function(err){
 var loginHandler = require('./node/loginHandler');
 var userHandler = require('./node/userHandler');
 var groupHandler = require('./node/groupHandler');
+var projectHandler = require('./node/projectHandler');
+
+
+
 
 var infoHandler = require('./node/infoHandler');
 var openpointsHandler = require('./node/openpointsHandler');
@@ -56,6 +60,7 @@ allSockets.on('connection', function (socket) {
     loginHandler.socketHandler(logger,io,db,socket);
     userHandler.socketHandler(logger,io,db,socket,loginHandler);
     groupHandler.socketHandler(logger,io,db,socket,loginHandler);
+    projectHandler.socketHandler(logger,io,db,socket,loginHandler);
 
 
     openpointsHandler.socketHandler(logger,io,db,socket,loginHandler);
