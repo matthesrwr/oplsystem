@@ -43,7 +43,7 @@ module.exports = {
 	userLevel: function(userID,level){
 		var idx = -1;
 		users.forEach(function(data,index,array){
-			if(data.userID == userID){
+			if(data.userID === userID){
 				idx = index;
 			}
 		});
@@ -51,7 +51,7 @@ module.exports = {
 			return false;
 		}
 		var levels = ['noright' , 'view' , 'edit' , 'add' , 'master' , 'admin' , 'root'];
-		logger.log('info', 'userLevel: ' + users[idx].level + ' requiered level: ' + levels.indexOf(level));
+		logger.log('debug', 'userLevel: ' + users[idx].level + ' requiered level: ' + levels.indexOf(level));
 		if(users[idx].level >= levels.indexOf(level)){
 			return true;
 		}else{
@@ -128,7 +128,7 @@ var logout = function(userID,callback){
 	var idx = -1;
 	var error = 0; // 1 no valid user
 	users.forEach(function(data,index,array){
-		if(data.userID == userID){
+		if(data.userID === userID){
 			idx = index;
 		}
 	});

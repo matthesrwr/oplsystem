@@ -1,21 +1,38 @@
 var userData;
-
+var groupData;
 
 var userFunction = function(socket){
 
     // Initial set of notes, loop through and add to list
     socket.on('users.send', function(data){
-        userData = data;
+        userData = data.users;
+        groupData = data.groups;
         var html = '<br><table>';
-        html += '<tr><td>Name</td><td>Level</td><td></td></tr>';
-        for (var i = 0; i < data.length; i++){
+        html += '<tr><td>name</td><td>level</td><td>group</td><td>password</td><td></td></tr>';
+        for (var i = 0; i < userData.length; i++){
             // We store html as a var then add to DOM after for efficiency
-            html += '<tr class=entry id=' + i + '><td>' + data[i].name + '</td>';
-            html += '<td>' + data[i].level + '</td>';
+            html += '<tr class=users.entry id=' + i + '><td>' + userData[i].name + '</td>';
+            html += '<td>' + userData[i].level + '</td>';
+            var groupName = 'none';
+            groupData.forEach(function(data,index,array){
+                if(data.id === userData[i].groupID){
+                    groupName = data.name;
+                }
+            });
+            html += '<td>' + groupName + '</td>';
             html += '<td></td></tr>';
         }
+        html += '<tr><td><input id=users.newName></input></td>';
+        html += '<td><input id=users.newLevel></input></td>';
+        html += '<td><select id=users.newGroup>';
+        groupData.forEach(function(data,index,array){
+            html += '<option value=' + data.id + '>' + data.name + '</input>';
+        });
+
+        html += '</select></td>';
+        html += '<td><input id=users.newPassword></input></td>';
+        html += '<td><input id=users.newSubmit type=submit></input></td></tr>';
         html += '</table><br>';
-        html += '<input id=username></input><input id=password></input><input id=level></input><input id=submit type=submit></input>';
         $('#bodyDiv').html(html);
         userFormFunctions(socket);
         $('#user').focus();
@@ -31,48 +48,62 @@ var userFunction = function(socket){
         socket.emit('users.get');
     });
 
-    $('#headDiv').append('<span id=headUser class="headElement">Users</span>');
-    $('#headUser').click(function(){
+    $('#headDiv').append('<span id=users.head class="headElement">Users</span>');
+    $('#users\\.head').click(function(){
         socket.emit('users.get');
     });
 };
 
 var userFormFunctions = function(socket){
-    $('#username').keypress(function(e){
+    $('#users\\.newName').keypress(function(e){
         if(e.which == 13){
             userAddFunction(socket);
         }
     });
-    $('#password').keypress(function(e){
+    $('#users\\.newPassword').keypress(function(e){
         if(e.which == 13){
             userAddFunction(socket);
         }
     });
-    $('#level').keypress(function(e){
+    $('#users\\.newLevel').keypress(function(e){
         if(e.which == 13){
             userAddFunction(socket);
         }
     });
-    $('#submit').click(function(){
+    $('#users\\.newSubmit').click(function(){
             userAddFunction(socket);
     });
-    $('.entry').click(function(){
-        var html = '<td><input id=changeUser value=' + userData[this.id].name + '></input></td>';
-        html += '<td><input id=changeLevel value=' + userData[this.id].level + '></input></td>';
-        html += '<td><input id=change type=submit value=change class=' + this.id + '></input>';
-        html += '<input id=delete type=submit value=delete class=' + this.id + '></input></td>'
+    $('.users\\.entry').click(function(){
+        var html = '<td><input id=users.changeUser value=' + userData[this.id].name + '></input></td>';
+        html += '<td><input id=users.changeLevel value=' + userData[this.id].level + '></input></td>';
+        var actID = this.id;
+        html += '<td><select id=users.changeGroup>';
+        groupData.forEach(function(data,index,array){
+            if(userData[actID].groupID === data.id){
+                html += '<option selected value=' + data.id + '>' + data.name + '</input>';
+            }else{
+                html += '<option value=' + data.id + '>' + data.name + '</input>';
+            }
+        });
+        html += '</select></td>';
+
+
+
+        html += '<td><input id=users.changeSubmit type=submit value=change class=' + this.id + '></input>';
+        html += '<input id=users.deleteSubmit type=submit value=delete class=' + this.id + '></input></td>'
         $('#' + this.id).html(html);
-        $('.entry').unbind();
-        $('#delete').click(function(){
-            var id=$('#delete').attr('class');
+        $('.users\\.entry').unbind();
+        $('#users\\.deleteSubmit').click(function(){
+            var id=$('#users\\.deleteSubmit').attr('class');
             socket.emit('users.delete',{id:userData[id].id});
         });
-        $('#change').click(function(){
+        $('#users\\.changeSubmit').click(function(){
             var modUser = {};
-            modUser.id=userData[$('#change').attr('class')].id;
-            modUser.name = $('#changeUser').val();
-            modUser.level = $('#changeLevel').val();
-            socket.emit('users.modify',{id:modUser.id,name:modUser.name,level:modUser.level});
+            modUser.id=userData[$('#users\\.changeSubmit').attr('class')].id;
+            modUser.name = $('#users\\.changeUser').val();
+            modUser.level = $('#users\\.changeLevel').val();
+            modUser.groupID = $('#users\\.changeGroup').val();
+            socket.emit('users.modify',{id:modUser.id,name:modUser.name,level:modUser.level,groupID:modUser.groupID});
         });
     });
 
@@ -80,11 +111,12 @@ var userFormFunctions = function(socket){
 
 
 var userAddFunction = function(socket){
-    var iUser = {};
-    iUser.name = $('#username').val();
-    iUser.password = $('#password').val();
-    iUser.level = $('#level').val();
-    socket.emit('users.new',{user:iUser});
-    $('#user').focus();
+    var newUser = {};
+    newUser.name = $('#users\\.newName').val();
+    newUser.password = $('#users\\.newPassword').val();
+    newUser.level = $('#users\\.newLevel').val();
+    newUser.groupID = $('#users\\.newGroup').val();
+    socket.emit('users.new',{name:newUser.name,password:newUser.password,level:newUser.level,groupID:newUser.groupID});
+    $('#users\\.newName').focus();
     return false;
 }

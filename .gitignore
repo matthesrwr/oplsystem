@@ -2,5 +2,4 @@ certs/server.crt
 certs/server.key
 config/config.json
 oplSystem.sublime-project
-
 oplSystem.sublime-workspace

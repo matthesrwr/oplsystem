@@ -13,7 +13,8 @@ module.exports = {
 	        }
 	        readUsers(function(data){
 	            var users = data;
-	            logger.log('info','users send');
+	            logger.log('debug','users send');
+	            logger.log('debug',users);
 	            socket.emit('users.send',users);
 	        });
 	    });
@@ -25,8 +26,8 @@ module.exports = {
 	        {
 	            return;
 	        }
-	        writeUser(data.user, function(){
-	        	logger.log('info', 'user created')
+	        writeUser(data, function(){
+	        	logger.log('debug', 'user created')
 	        	allSockets.emit('users.added');
 	        });
 	    });
@@ -37,7 +38,7 @@ module.exports = {
 	            return;
 	        }
 	        delUser(data.id, function(){
-	        	logger.log('info', 'user deleted')
+	        	logger.log('debug', 'user deleted')
 	        	allSockets.emit('users.deleted');
 	        });
 	    });
@@ -48,7 +49,7 @@ module.exports = {
 	            return;
 	        }
 	        changeUser(data, function(){
-	        	logger.log('info', 'user modified')
+	        	logger.log('debug', 'user modified')
 	        	allSockets.emit('users.modified');
 	        });
 	    });
@@ -58,8 +59,8 @@ module.exports = {
 var writeUser = function(data,callback){
 	bcrypt.hash(data.password, 10, function(err, hash) {
 	    if (!err) {
-	    	logger.log('info', 'new hash: ' + hash);
-			db.query('INSERT INTO user SET ?', {name : data.name,password : hash,level : data.level})
+	    	logger.log('debug', 'new hash: ' + hash);
+			db.query('INSERT INTO user SET ?', {name : data.name,password : hash,level : data.level, groupID : data.groupID})
 				.on('end',function(){
 					callback();
 				})
@@ -73,18 +74,32 @@ var writeUser = function(data,callback){
 	});
 };
 var readUsers = function(callback){
-	var users = [];
-	db.query('SELECT id,name,level FROM user')
+	var users = {};
+	users.users = [];
+	users.groups = [];
+	db.query('SELECT id,name,level,groupID FROM user')
         .on('result', function(data){
             // Push results onto the notes array
-            users.push(data);
+            users.users.push(data);
         })
         .on('end', function(){
             // Only emit notes after query has been completed
-            callback(users);
+            db.query('SELECT id,name FROM groups')
+		        .on('result', function(data){
+		            // Push results onto the notes array
+		            users.groups.push(data);
+		        })
+		        .on('end', function(){
+		            // Only emit notes after query has been completed
+		            callback(users);
+		        })
+		        .on('error',function(err){
+					logger.log('error',err);
+				});
         })
         .on('error',function(err){
-		logger.log('error',err);		});
+			logger.log('error',err);
+		});
 };
 var delUser = function(data,callback){
 	db.query('DELETE FROM user WHERE id=(?)', data)
@@ -97,7 +112,7 @@ var delUser = function(data,callback){
 };
 var changeUser = function(data,callback){
 	logger.log('info',data)
-	db.query('UPDATE user SET ? WHERE id=?', [{name:data.name,level:data.level},data.id])
+	db.query('UPDATE user SET ? WHERE id=?', [{name:data.name,level:data.level,groupID:data.groupID},data.id])
 		.on('end',function(){
 			callback();
 		})

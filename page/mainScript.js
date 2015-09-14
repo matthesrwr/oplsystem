@@ -13,6 +13,7 @@ $(document).ready(function(){
             }
             if(data.level >= 4){
                 userFunction(socket);
+                groupFunction(socket);
             }
 
         }else{

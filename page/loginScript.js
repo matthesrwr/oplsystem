@@ -22,7 +22,7 @@ var loginFunction = function(socket){
             evt.state = false;
             evt.data = 0;
             $(window).trigger(evt);
-            var html = '<input id=user></input><input id=pass></input><input id=submit type=submit></input>';
+            var html = '<input id=user></input><input type=password id=pass></input><input id=submit type=submit></input>';
             $('#loginDiv').html(html);
             $('#user').focus();
             loginFormFunctions(socket);

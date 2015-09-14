@@ -13,7 +13,7 @@ module.exports = {
 	        }
 	        readInfos(function(data){
 	            var infos = data;
-	            logger.log('info','infos send');
+	            logger.log('debug','infos send');
 	            socket.emit('infos',infos);
 	        });
 	    });
@@ -25,7 +25,7 @@ module.exports = {
 	            return;
 	        }
 	        writeInfo(data.info, function(){
-	        	logger.log('info', 'info created')
+	        	logger.log('debug', 'info created')
 	        	allSockets.emit('infoWriten');
 	        });
 	    });
@@ -36,7 +36,7 @@ module.exports = {
 	            return;
 	        }
 	        delInfo(data.id, function(){
-	        	logger.log('info', 'info deleted')
+	        	logger.log('degub', 'info deleted')
 	        	allSockets.emit('infoDeleted');
 	        });
 	    });

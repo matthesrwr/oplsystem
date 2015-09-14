@@ -7,7 +7,7 @@ module.exports = {
 	},
 	log:function (level, message){
 
-	    var levels = ['error', 'warn', 'info'];
+	    var levels = ['error', 'warn', 'info','debug'];
 	    if (levels.indexOf(level) <= levels.indexOf(debugLevel) ) {
 	      if (typeof message !== 'string') {
 	        message = JSON.stringify(message);
