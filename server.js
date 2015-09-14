@@ -48,6 +48,7 @@ var userHandler = require('./node/userHandler');
 var groupHandler = require('./node/groupHandler');
 
 var infoHandler = require('./node/infoHandler');
+var openpointsHandler = require('./node/openpointsHandler');
 
 
 
@@ -57,6 +58,7 @@ allSockets.on('connection', function (socket) {
     groupHandler.socketHandler(logger,io,db,socket,loginHandler);
 
 
+    openpointsHandler.socketHandler(logger,io,db,socket,loginHandler);
     infoHandler.socketHandler(logger,io,db,socket,loginHandler);
 });
 

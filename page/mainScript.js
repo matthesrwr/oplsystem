@@ -10,6 +10,7 @@ $(document).ready(function(){
             console.log('logged in');
             if(data.level >= 0){
                 infoFunction(socket);
+                openpointsFunction(socket);
             }
             if(data.level >= 4){
                 userFunction(socket);
