@@ -17,7 +17,7 @@ module.exports = {
 	            socket.emit('openpoints.send',points);
 	        });
 	    });
-/*
+
 	    socket.on('openpoints.new', function(data){
 	        // New note added, push to all sockets and insert into db
 	        if(loginHandler.userLevel(socket.id,'add') == false)
@@ -40,7 +40,7 @@ module.exports = {
 	        	allSockets.emit('openpoints.deleted');
 	        });
 	    });
-*/
+
 	}
 };
 
